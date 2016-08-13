@@ -49,6 +49,14 @@ var Client = function(config){
     }
   }
 
+  if(scopeCheck("remove")){
+    c.remove = function(params){
+      var path = c.config.crudUrls.remove.replace(":id", params.id);
+      delete params.id;
+      return $.delete(this.config.path + path, params);
+    }
+  }
+
   return c;
 }
 
@@ -58,6 +66,7 @@ Client.config = {
     update: ":/id",
     find: "",
     findOne: "/:id",
+    remove: "/:id"
   }
 }
 
