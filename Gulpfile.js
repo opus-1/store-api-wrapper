@@ -9,7 +9,7 @@ const mocha = require('gulp-mocha');
 
 gulp.task('test', () => 
     gulp.src('tests/*.js', {read: false})
-        .pipe(mocha())
+        .pipe(mocha({jQuery: {}}))
 );
 
 gulp.task('compile', ()=> {
@@ -24,8 +24,8 @@ gulp.task('compile', ()=> {
 });
 
 gulp.task('watch', ()=>{
-  return gulp.watch('src/*.js', ['compile'])
-  return gulp.watch('src/**/*.js', ['compile'])
+  return gulp.watch('src/*.js', ['compile', 'test'])
+  return gulp.watch('src/**/*.js', ['compile', 'test'])
 });
 
-gulp.task('default', ["compile", "watch"])
+gulp.task('default', ["compile", "watch", "test"])

@@ -19,9 +19,9 @@ var Client = function(config){
   c.config.crudUrls = c.config.crudUrls || JSON.parse(JSON.stringify(Client.config.crudUrls));
 
   var scopeCheck = function (scope){
-    return !c.config.scope || (c.config.scope && c.config.scope.indexOf(scope) != -1);
+    return c.config.scope.join("").length == 0 || c.config.scope.indexOf(scope) != -1;
   }
-  this.config.path + c.config.crudUrls.create
+
   
   var setAction = function(actionName, type, path){
     c[actionName] = function(params){
@@ -33,14 +33,16 @@ var Client = function(config){
     }
   }
 
+
+
   if(scopeCheck("create")){
-    setAction("create", function(){
-      return this.config.path + c.config.crudUrls.create
+    setAction("create", "post", function(){
+      return c.config.path + c.config.crudUrls.create
     })
   }
 
   if(scopeCheck("update")){
-    setAction("update", function(params){
+    setAction("update", "put", function(params){
       path = c.config.crudUrls.update.replace(":id", id)
       delete params.id;
       return path
@@ -48,23 +50,23 @@ var Client = function(config){
   }
   
   if(scopeCheck("find")){
-    setAction("find", function(){ this.config.path + c.config.crudUrls.find})
+    setAction("find", "get", function(){ return c.config.path + c.config.crudUrls.find})
   }
   
   if(scopeCheck("findOne")){
-    setAction("findOne", function(params){
+    setAction("findOne", "get", function(params){
       var path = c.config.crudUrls.findOne.replace(":id", params.id);
       delete params.id;
-      return this.config.path + path, params;
+      return c.config.path + path, params;
     })
   }
 
   if(scopeCheck("remove")){
-    setAction("remove", function(params){
+    setAction("remove", "delete", function(params){
       var path = c.config.crudUrls.remove.replace(":id", params.id);
       delete params.id;
-      return this.config.path + path;
-    }
+      return c.config.path + path;
+    })
   }
 
   return c;
@@ -80,6 +82,9 @@ Client.config = {
   }
 }
 
-Client.jQuery = jQuery;
-
+if(typeof jQuery != "undefined"){
+  Client.jQuery = jQuery;
+}else{
+  Client.jQuery = {};
+}
 module.exports = Client

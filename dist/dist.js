@@ -21,42 +21,53 @@ var Client = function Client(config) {
   c.config.crudUrls = c.config.crudUrls || JSON.parse(JSON.stringify(Client.config.crudUrls));
 
   var scopeCheck = function scopeCheck(scope) {
-    return !c.config.scope || c.config.scope && c.config.scope.indexOf(scope) != -1;
+    return c.config.scope.join("").length == 0 || c.config.scope.indexOf(scope) != -1;
+  };
+
+  var setAction = function setAction(actionName, type, path) {
+    c[actionName] = function (params) {
+      return $.ajax({
+        method: type,
+        url: path(params),
+        data: params
+      });
+    };
   };
 
   if (scopeCheck("create")) {
-    c.create = function (params) {
-      return $.post(this.config.path + c.config.crudUrls.create, params);
-    };
+    setAction("create", "post", function () {
+      return c.config.path + c.config.crudUrls.create;
+    });
   }
 
   if (scopeCheck("update")) {
-    c.update = function (id, params) {
-      var path = c.config.crudUrls.update.replace(":id", id);
-      return $.put(this.config.path + path, params);
-    };
+    setAction("update", "put", function (params) {
+      path = c.config.crudUrls.update.replace(":id", id);
+      delete params.id;
+      return path;
+    });
   }
 
   if (scopeCheck("find")) {
-    c.find = function (params) {
-      return $.get(this.config.path + c.config.crudUrls.find, params);
-    };
+    setAction("find", "get", function () {
+      return c.config.path + c.config.crudUrls.find;
+    });
   }
 
   if (scopeCheck("findOne")) {
-    c.findOne = function (params) {
+    setAction("findOne", "get", function (params) {
       var path = c.config.crudUrls.findOne.replace(":id", params.id);
       delete params.id;
-      return $.get(this.config.path + path, params);
-    };
+      return c.config.path + path, params;
+    });
   }
 
   if (scopeCheck("remove")) {
-    c.remove = function (params) {
+    setAction("remove", "delete", function (params) {
       var path = c.config.crudUrls.remove.replace(":id", params.id);
       delete params.id;
-      return $.delete(this.config.path + path, params);
-    };
+      return c.config.path + path;
+    });
   }
 
   return c;
@@ -72,8 +83,11 @@ Client.config = {
   }
 };
 
-Client.jQuery = jQuery;
-
+if (typeof jQuery != "undefined") {
+  Client.jQuery = jQuery;
+} else {
+  Client.jQuery = {};
+}
 module.exports = Client;
 "use strict";
 
@@ -85,12 +99,16 @@ var Model = function Model(options) {
     model[action] = function (params) {
       return {
         store: function store() {
-          var actionPromise = model.Client[action](params);
+          var actionPromise = this.fetch();
           actionPromise.then(function (response) {
             var storeItem = {};
             storeItem[action] = response;
-            model.store.set(storeItem);
+            model.config.store.set(storeItem);
           });
+          return actionPromise;
+        },
+        fetch: function fetch() {
+          var actionPromise = model.config.client[action](params);
         }
       };
     };

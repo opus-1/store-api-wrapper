@@ -13,7 +13,7 @@ var Model = function(options){
             model.config.store.set(storeItem);  
           })
           return actionPromise
-        }
+        },
         fetch: function(){
           var actionPromise = model.config.client[action](params)
         }
