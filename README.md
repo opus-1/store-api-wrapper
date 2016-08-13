@@ -1,6 +1,6 @@
 # store-api-wrapper
 ```javascript
-  User = Saw({
+  User = Model({
     api: {
       create: ApiClient.createUser,
       update: ApiClient.updateUser,

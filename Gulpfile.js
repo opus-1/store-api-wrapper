@@ -5,6 +5,12 @@ const sourcemaps = require('gulp-sourcemaps');
 const babel = require('gulp-babel');
 const concat = require('gulp-concat');
 const watch = require('gulp-watch');
+const mocha = require('gulp-mocha');
+
+gulp.task('test', () => 
+    gulp.src('tests/*.js', {read: false})
+        .pipe(mocha())
+);
 
 gulp.task('compile', ()=> {
   return gulp.src('src/**/*.js')

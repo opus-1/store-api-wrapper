@@ -21,39 +21,49 @@ var Client = function(config){
   var scopeCheck = function (scope){
     return !c.config.scope || (c.config.scope && c.config.scope.indexOf(scope) != -1);
   }
+  this.config.path + c.config.crudUrls.create
+  
+  var setAction = function(actionName, type, path){
+    c[actionName] = function(params){
+      return $.ajax({
+        method: type,
+        url: path(params), 
+        data: params
+      })
+    }
+  }
 
   if(scopeCheck("create")){
-    c.create = function(params){
-      return $.post(this.config.path + c.config.crudUrls.create, params);
-    }    
+    setAction("create", function(){
+      return this.config.path + c.config.crudUrls.create
+    })
   }
 
   if(scopeCheck("update")){
-    c.update = function(id, params){
-      var path = c.config.crudUrls.update.replace(":id", id);
-      return $.put(this.config.path + path, params);
-    }
+    setAction("update", function(params){
+      path = c.config.crudUrls.update.replace(":id", id)
+      delete params.id;
+      return path
+    })
   }
   
   if(scopeCheck("find")){
-    c.find = function(params){
-      return $.get(this.config.path + c.config.crudUrls.find, params);
-    }
+    setAction("find", function(){ this.config.path + c.config.crudUrls.find})
   }
   
   if(scopeCheck("findOne")){
-    c.findOne = function(params){
+    setAction("findOne", function(params){
       var path = c.config.crudUrls.findOne.replace(":id", params.id);
       delete params.id;
-      return $.get(this.config.path + path, params);
-    }
+      return this.config.path + path, params;
+    })
   }
 
   if(scopeCheck("remove")){
-    c.remove = function(params){
+    setAction("remove", function(params){
       var path = c.config.crudUrls.remove.replace(":id", params.id);
       delete params.id;
-      return $.delete(this.config.path + path, params);
+      return this.config.path + path;
     }
   }
 

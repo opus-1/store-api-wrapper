@@ -1,7 +1,7 @@
 var Saw = { 
   Client: require('./src/client'),
   Store: require('./src/store'),
-  Model: require('./src/saw')
+  Model: require('./src/model')
 };
 
 window.Client = Saw.Client;

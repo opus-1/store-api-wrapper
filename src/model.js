@@ -6,12 +6,16 @@ var Model = function(options){
     model[action] = function(params){
       return {
         store: function(){
-          var actionPromise = model.Client[action](params)
+          var actionPromise = this.fetch()
           actionPromise.then(function(response){
             var storeItem = {};
             storeItem[action] = response;
-            model.store.set(storeItem);  
+            model.config.store.set(storeItem);  
           })
+          return actionPromise
+        }
+        fetch: function(){
+          var actionPromise = model.config.client[action](params)
         }
       };
     }
