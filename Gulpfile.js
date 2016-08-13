@@ -7,9 +7,9 @@ const concat = require('gulp-concat');
 const watch = require('gulp-watch');
 const mocha = require('gulp-mocha');
 
-gulp.task('test', () => 
+gulp.task('test', ["compile"], () => 
     gulp.src('tests/*.js', {read: false})
-        .pipe(mocha({jQuery: {}}))
+        .pipe(mocha({jQuery: {}, reporter: 'spec', growl: true}))
 );
 
 gulp.task('compile', ()=> {
@@ -24,8 +24,9 @@ gulp.task('compile', ()=> {
 });
 
 gulp.task('watch', ()=>{
-  return gulp.watch('src/*.js', ['compile', 'test'])
-  return gulp.watch('src/**/*.js', ['compile', 'test'])
+  gulp.watch('src/*.js', ['test'])
+  gulp.watch('src/**/*.js', ['test'])
+  return gulp.watch('tests/*.js', ['test'])
 });
 
 gulp.task('default', ["compile", "watch", "test"])

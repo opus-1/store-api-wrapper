@@ -24,11 +24,14 @@ var Client = function(config){
 
   
   var setAction = function(actionName, type, path){
-    c[actionName] = function(params){
+    c[actionName] = function(params, paramsTwo){
+      if(paramsTwo == undefined){
+        paramsTwo = params
+      }
       return $.ajax({
         method: type,
         url: path(params), 
-        data: params
+        data: paramsTwo
       })
     }
   }
@@ -42,9 +45,9 @@ var Client = function(config){
   }
 
   if(scopeCheck("update")){
-    setAction("update", "put", function(params){
-      path = c.config.crudUrls.update.replace(":id", id)
-      delete params.id;
+    setAction("update", "put", function(queryParams, params){
+      path = c.config.path + c.config.crudUrls.update.replace(":id", queryParams.id)
+      delete queryParams.id;
       return path
     })
   }
@@ -57,7 +60,7 @@ var Client = function(config){
     setAction("findOne", "get", function(params){
       var path = c.config.crudUrls.findOne.replace(":id", params.id);
       delete params.id;
-      return c.config.path + path, params;
+      return c.config.path + path;
     })
   }
 
@@ -75,7 +78,7 @@ var Client = function(config){
 Client.config = {
   crudUrls: {
     create: "", 
-    update: ":/id",
+    update: "/:id",
     find: "",
     findOne: "/:id",
     remove: "/:id"
