@@ -1,0 +1,29 @@
+{
+  "name": "store-api-wrapper",
+  "version": "1.0.0",
+  "description": "A store lib for making data transfer from the client to your api easily and logically",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opus-1/store-api-wrapper.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/opus-1/store-api-wrapper/issues"
+  },
+  "homepage": "https://github.com/opus-1/store-api-wrapper#readme",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.13.2",
+    "gulp-babel": "^6.1.2",
+    "babel": "^6.5.2",
+    "concat": "0.0.1-security",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-watch": "^4.3.9"
+  }
+}

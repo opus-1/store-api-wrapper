@@ -1,0 +1,1 @@
+{"version":3,"sources":["main.js"],"names":[],"mappings":";;AAAA,SAAS,gBAAS,CAAT,EAAW;AAClB,MAAI,GAAJ;AACD,CAFD","file":"dist.js","sourcesContent":["Client = function(a){\n  a = \"n\"\n}"],"sourceRoot":"/source/"}
