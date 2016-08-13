@@ -18,4 +18,7 @@
     users: Client("/api/users"),
     organizations: Client({"/api/organizations", scope: "find"})
   }
+  ApiClient.users.findOne({id: 10}).then(function(user){
+    console.log(user)
+  })
 ```
