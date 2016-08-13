@@ -71,3 +71,5 @@ Client.config = {
 }
 
 Client.jQuery = jQuery;
+
+module.exports = Client

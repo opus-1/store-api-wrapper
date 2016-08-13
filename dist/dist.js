@@ -73,6 +73,8 @@ Client.config = {
 };
 
 Client.jQuery = jQuery;
+
+module.exports = Client;
 "use strict";
 
 var Model = function Model(options) {
@@ -114,9 +116,11 @@ var Model = function Model(options) {
     setAction("findAll");
   }
 };
+
+module.exports = Model;
 'use strict';
 
-Store = function Store(el) {
+var Store = function Store(el) {
 
   /**
    * Extend the original object or create a new empty one
@@ -273,4 +277,6 @@ Store = function Store(el) {
 
   return el;
 };
+
+module.exports = Store;
 //# sourceMappingURL=dist.js.map

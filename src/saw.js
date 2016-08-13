@@ -38,3 +38,5 @@ var Model = function(options){
     setAction("findAll")
   }
 }
+
+module.exports = Model

@@ -1,4 +1,4 @@
-Store = function(el) {
+var Store = function(el) {
 
   /**
    * Extend the original object or create a new empty one
@@ -155,3 +155,5 @@ Store = function(el) {
   return el
 
 }
+
+module.exports = Store
