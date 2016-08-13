@@ -1,5 +1,5 @@
 # store-api-wrapper
-
+```javascript
   User = Saw({
     api: {
       create: ApiClient.createUser,
@@ -10,3 +10,12 @@
     store: localStorage,
     socket: "ActionCable"
   })
+```
+
+## Client
+```javascript
+  ApiClient = {
+    users: Client("/api/users"),
+    organizations: Client({"/api/organizations", scope: "find"})
+  }
+```
