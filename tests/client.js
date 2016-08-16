@@ -1,21 +1,8 @@
 var assert = require('assert');
 var Client = require('../src/client');
-var fakeAjaxContent = []
 
-function resetAjax(){
-  fakeAjaxContent = []
-}
-
-function ajaxContent(){
-  return fakeAjaxContent
-}
-
-Client.jQuery = {
-  ajax: function(content){
-    return fakeAjaxContent.push(content)
-  }
-}  
-
+var jQuery = require('jquery');
+var getjQuery = require('../fake-jquery')
 describe('Client', function() {
   describe('#find', function() {
     it('find should be returned without scope', function() {
@@ -34,12 +21,15 @@ describe('Client', function() {
     });
 
     it('find should pass the right path to xhr client', function() {
-      resetAjax()
       ApiClient = Client({path: "/users", scope: "find"})
+      ApiClient.jQuery = getjQuery()
       
       ApiClient.find({id: 1})
-      matcher = JSON.stringify([ { method: 'get', url: '/users', data: { id: 1 } } ])
-      assert.equal(matcher, JSON.stringify(ajaxContent()));
+      
+      var response = ApiClient.jQuery.lastResponse();
+
+      matcher = JSON.stringify({ method: 'get', url: '/users', data: { id: 1 } })
+      assert.equal(matcher, JSON.stringify(response));
     });
   });
 
@@ -60,12 +50,15 @@ describe('Client', function() {
     });
 
     it('findOne should pass the right path to xhr client', function() {
-      resetAjax()
       ApiClient = Client({path: "/users", scope: "findOne"})
+      ApiClient.jQuery = getjQuery()
       
       ApiClient.findOne({id: 1})
-      matcher = JSON.stringify([ { method: 'get', url: '/users/1', data: { } } ])
-      assert.equal(matcher, JSON.stringify(ajaxContent()));
+
+      var response = ApiClient.jQuery.lastResponse();
+
+      matcher = JSON.stringify({ method: 'get', url: '/users/1', data: { } })
+      assert.equal(matcher, JSON.stringify(response));
     });
   });
 
@@ -86,12 +79,15 @@ describe('Client', function() {
     });
 
     it('update should pass the right path to xhr client', function() {
-      resetAjax()
       ApiClient = Client({path: "/users", scope: "update"})
-      
+      ApiClient.jQuery = getjQuery()
+
       ApiClient.update({id: 1})
-      matcher = JSON.stringify([ { method: 'put', url: '/users/1', data: { } } ])
-      assert.equal(matcher, JSON.stringify(ajaxContent()));
+      
+      var response = ApiClient.jQuery.lastResponse();
+
+      matcher = JSON.stringify({ method: 'put', url: '/users/1', data: { } })
+      assert.equal(matcher, JSON.stringify(response));
     });
   });
 
@@ -112,12 +108,14 @@ describe('Client', function() {
     });
 
     it('create should pass the right path to xhr client', function() {
-      resetAjax()
       ApiClient = Client({path: "/users", scope: "create"})
+      ApiClient.jQuery = getjQuery()
       
       ApiClient.create({name: "John Doe"})
-      matcher = JSON.stringify([ { method: 'post', url: '/users', data: { name: "John Doe"} } ])
-      assert.equal(matcher, JSON.stringify(ajaxContent()));
+      var response = ApiClient.jQuery.lastResponse();
+
+      matcher = JSON.stringify({ method: 'post', url: '/users', data: { name: "John Doe"} })
+      assert.equal(matcher, JSON.stringify(response));
     });
   });
 
@@ -138,12 +136,14 @@ describe('Client', function() {
     });
 
     it('remove should pass the right path to xhr client', function() {
-      resetAjax()
       ApiClient = Client({path: "/users", scope: "remove"})
-      
+      ApiClient.jQuery = getjQuery()
+
       ApiClient.remove({id: 1})
-      matcher = JSON.stringify([ { method: 'delete', url: '/users/1', data: {} } ])
-      assert.equal(matcher, JSON.stringify(ajaxContent()));
+      var response = ApiClient.jQuery.lastResponse();
+
+      matcher = JSON.stringify({ method: 'delete', url: '/users/1', data: {} })
+      assert.equal(matcher, JSON.stringify(response));
     });
   });
 });

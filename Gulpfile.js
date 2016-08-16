@@ -7,10 +7,10 @@ const concat = require('gulp-concat');
 const watch = require('gulp-watch');
 const mocha = require('gulp-mocha');
 
-gulp.task('test', ["compile"], () => 
+gulp.task('test', ["compile"], () => {
     gulp.src('tests/*.js', {read: false})
-        .pipe(mocha({jQuery: {}, reporter: 'spec', growl: true}))
-);
+        .pipe(mocha({reporter: 'spec', growl: true}));
+});
 
 gulp.task('compile', ()=> {
   return gulp.src('src/**/*.js')

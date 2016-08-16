@@ -1,5 +1,5 @@
 var Client = function(config){
-  c = {};
+  var c = {};
 
   if(typeof config == "string"){
     var c = {
@@ -13,7 +13,8 @@ var Client = function(config){
     }
   }
 
-  var $ = Client.jQuery
+  c.jQuery = Client.jQuery
+
   c.config.scope = c.config.scope || "";
   c.config.scope = c.config.scope.replace(", ", " ").split(" ");
   c.config.crudUrls = c.config.crudUrls || JSON.parse(JSON.stringify(Client.config.crudUrls));
@@ -28,7 +29,7 @@ var Client = function(config){
       if(paramsTwo == undefined){
         paramsTwo = params
       }
-      return $.ajax({
+      return c.jQuery.ajax({
         method: type,
         url: path(params), 
         data: paramsTwo

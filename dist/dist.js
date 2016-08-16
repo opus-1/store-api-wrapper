@@ -1,7 +1,7 @@
 "use strict";
 
 var Client = function Client(config) {
-  c = {};
+  var c = {};
 
   if (typeof config == "string") {
     var c = {
@@ -15,7 +15,8 @@ var Client = function Client(config) {
     };
   }
 
-  var $ = Client.jQuery;
+  c.jQuery = Client.jQuery;
+
   c.config.scope = c.config.scope || "";
   c.config.scope = c.config.scope.replace(", ", " ").split(" ");
   c.config.crudUrls = c.config.crudUrls || JSON.parse(JSON.stringify(Client.config.crudUrls));
@@ -29,7 +30,7 @@ var Client = function Client(config) {
       if (paramsTwo == undefined) {
         paramsTwo = params;
       }
-      return $.ajax({
+      return c.jQuery.ajax({
         method: type,
         url: path(params),
         data: paramsTwo
@@ -94,31 +95,59 @@ if (typeof jQuery != "undefined") {
 module.exports = Client;
 "use strict";
 
+var md5 = require("../node_modules/blueimp-md5/js/md5");
+
 var Model = function Model(options) {
   var model = {};
   model.config = options;
+  model.jQuery = Model.jQuery || {};
+  model.config.key = model.config.key || "id";
 
   var setAction = function setAction(action) {
-    model[action] = function (params) {
-      return {
-        store: function store() {
-          var actionPromise = this.fetch();
-          actionPromise.then(function (response) {
-            var storeItem = {};
-            storeItem[action] = response;
-            model.config.store.set(storeItem);
-          });
-          return actionPromise;
-        },
-        fetch: function fetch() {
-          var actionPromise = model.config.client[action](params);
+    model[action] = function (params, paramsTwo) {
+      if (typeof model.jQuery == "undefined") {
+        throw "jQuery must be attached to model to continue!";
+      }
+      promise = model.jQuery.Deferred();
+
+      promise.sendParams = model.config.sendParams(params);
+      promise.sendParamsTwo = paramsTwo ? model.config.sendParams(paramsTwo) : '';
+      if (!model.config.store[action + "-" + md5(promise.sendParams) + "-" + md5(promise.sendParamsTwo)]) {
+        model.config.store[action + "-" + md5(promise.sendParams)] = 'waiting...';
+        if (paramsTwo) {
+          var ajax = model.config.client[action](promise.sendParams, promise.sendParamsTwo);
+        } else {
+          var ajax = model.config.client[action](promise.sendParams);
         }
-      };
+        ajax.then(function (response) {
+          var processResponse = function processResponse(response) {
+            var data = model.config.receiveParams(response);
+            data.model = model;
+            ActiveRecord(data);
+            return data;
+          };
+          if ('length' in response) {
+            var response = response.map(function (data) {
+              return processResponse(data);
+            });
+          } else {
+            var response = processResponse(response);
+          }
+
+          model.config.store[action + "-" + md5(promise.sendParams)] = response;
+          promise.resolve(response);
+        });
+      } else {
+        promise.resolve(model.config.store[action + "-" + promise.md5]);
+      }
+      model.config.store[action];
+
+      return promise;
     };
   };
 
   var scopeCheck = function scopeCheck(scope) {
-    return !model.config.scope || model.config.scope && model.config.scope.indexOf(scope) != -1;
+    return !model.config.scope || model.config.scope && model.config.scope.replace(", ", " ").split(" ").indexOf(scope) != -1;
   };
 
   if (scopeCheck("create")) {
@@ -133,10 +162,38 @@ var Model = function Model(options) {
   if (scopeCheck("find")) {
     setAction("find");
   }
-  if (scopeCheck("findAll")) {
-    setAction("findAll");
+  if (scopeCheck("findOne")) {
+    setAction("findOne");
   }
+  var ActiveRecord = function ActiveRecord(aro) {
+    if (aro.model.update) {
+      aro.save = function () {
+
+        var params = aro.model.config.sendParams(aro);
+
+        promise = model.jQuery.Deferred();
+        if (typeof aro[aro.model.config.key] == "undefined") {
+          throw "Model key must exist! You have set your key to " + aro.model.config.key + " check receiveParams in client to make if using S.A. Wrapper Client";
+        }
+
+        aro.model.update(aro[aro.model.config.key], params).then(function (response) {
+          promise.resolve(ActiveRecord(aro.model.config.receiveParams(response)));
+        });
+        return promise;
+      };
+    } else {
+      aro.save = function () {
+        throw "Update must be included in update scope to use AR save.";
+      };
+    }
+  };
+
+  return model;
 };
+
+if (typeof jQuery != "undefined") {
+  Model.jQuery = jQuery;
+}
 
 module.exports = Model;
 'use strict';
