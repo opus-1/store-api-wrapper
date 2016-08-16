@@ -102,18 +102,27 @@ var Model = function Model(options) {
   model.config = options;
   model.jQuery = Model.jQuery || {};
   model.config.key = model.config.key || "id";
-
+  model.config.queName = 'default';
   var setAction = function setAction(action) {
-    model[action] = function (params, paramsTwo) {
+    model[action] = function (queName, params, paramsTwo) {
       if (typeof model.jQuery == "undefined") {
         throw "jQuery must be attached to model to continue!";
       }
       promise = model.jQuery.Deferred();
 
+      if (typeof queName != "string") {
+        paramsTwo = params;
+        params = queName;
+        queName = false;
+      }
+
       promise.sendParams = model.config.sendParams(params);
       promise.sendParamsTwo = paramsTwo ? model.config.sendParams(paramsTwo) : '';
-      if (!model.config.store[action + "-" + md5(promise.sendParams) + "-" + md5(promise.sendParamsTwo)]) {
-        model.config.store[action + "-" + md5(promise.sendParams)] = 'waiting...';
+
+      queName = queName || model.config.queName;
+      storeKey = queName + action + "-" + md5(promise.sendParams) + "-" + md5(promise.sendParamsTwo);
+      if (!model.config.store[storeKey]) {
+        model.config.store[storeKey] = false;
         if (paramsTwo) {
           var ajax = model.config.client[action](promise.sendParams, promise.sendParamsTwo);
         } else {
@@ -133,12 +142,13 @@ var Model = function Model(options) {
           } else {
             var response = processResponse(response);
           }
-
-          model.config.store[action + "-" + md5(promise.sendParams)] = response;
+          var setObject = {};
+          setObject[action + "-" + md5(promise.sendParams)] = response;
+          model.config.store.set(setObject);
           promise.resolve(response);
         });
       } else {
-        promise.resolve(model.config.store[action + "-" + promise.md5]);
+        promise.resolve(model.config.store[storeKey]);
       }
       model.config.store[action];
 
