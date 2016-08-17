@@ -118,16 +118,20 @@ var Model = function Model(options) {
 
       promise.sendParams = model.config.sendParams(params);
       promise.sendParamsTwo = paramsTwo ? model.config.sendParams(paramsTwo) : '';
-
+      model.que = {};
       queName = queName || model.config.queName;
       storeKey = queName + action + "-" + md5(promise.sendParams) + "-" + md5(promise.sendParamsTwo);
       if (!model.config.store[storeKey]) {
         model.config.store[storeKey] = false;
+        if (model.que[queName]) {
+          model.que[queName].abort();
+        }
         if (paramsTwo) {
           var ajax = model.config.client[action](promise.sendParams, promise.sendParamsTwo);
         } else {
           var ajax = model.config.client[action](promise.sendParams);
         }
+        model.que[queName] = ajax;
         ajax.then(function (response) {
           var processResponse = function processResponse(response) {
             var data = model.config.receiveParams(response);
@@ -275,9 +279,15 @@ var Store = function Store(el) {
 
     if ("length" in el) {
       el.splice(0, el.length);
-      values.forEach(function (row) {
-        el.push(processData({}, row));
-      });
+      if ("length" in values) {
+        values.forEach(function (row) {
+          el.push(processData({}, row));
+        });
+      } else {
+        Object.keys(values).forEach(function (key) {
+          el[key] = values[key];
+        });
+      }
     } else {
       processData(el, values);
     }

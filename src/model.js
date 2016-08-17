@@ -21,16 +21,20 @@ var Model = function(options){
 
       promise.sendParams = model.config.sendParams(params);
       promise.sendParamsTwo = paramsTwo ? model.config.sendParams(paramsTwo) : '';
-
+      model.que = {};
       queName = queName || model.config.queName;
       storeKey = queName + action + "-"  + md5(promise.sendParams) + "-" + md5(promise.sendParamsTwo)
       if(!model.config.store[storeKey]){
         model.config.store[storeKey] = false
+        if(model.que[queName]){
+          model.que[queName].abort();
+        }
         if(paramsTwo){
           var ajax = model.config.client[action](promise.sendParams, promise.sendParamsTwo);
         }else{
           var ajax = model.config.client[action](promise.sendParams);
         }
+        model.que[queName] = ajax;
         ajax.then(function(response){
           var processResponse = function(response){
             var data = model.config.receiveParams(response);

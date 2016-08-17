@@ -64,14 +64,20 @@ var Store = function(el) {
   defineProperty('set', function(values) {
 
     if("length" in el){
-      el.splice(0,el.length)
-      values.forEach(function(row){
-        el.push(processData({}, row))  
-      })
+      el.splice(0,el.length);
+      if("length" in values){
+        values.forEach(function(row){
+          el.push(processData({}, row));
+        })  
+      }else{
+        Object.keys(values).forEach(function(key){
+          el[key] = values[key];
+        })
+      }
     }else{
-      processData(el, values)
+      processData(el, values);
     }
-    el.trigger("set", el)
+    el.trigger("set", el);
     
     return el
   })
