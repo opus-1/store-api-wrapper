@@ -1,6 +1,6 @@
 {
   "name": "store-api-wrapper",
-  "version": "1.1.0",
+  "version": "1.1.01",
   "description": "A store lib for making data transfer from the client to your api easily and logically",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -39,5 +39,7 @@
     "mocha": "^3.0.2",
     "mock-browser": "^0.92.12"
   },
-  "dependencies": {}
+  "dependencies": {
+    "blueimp-md5": "^2.3.0"
+  }
 }
