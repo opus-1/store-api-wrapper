@@ -246,7 +246,7 @@ var Store = function Store(el) {
       value = values[key];
       target[key] = value;
       if (target == el) {
-        target.trigger(key, value);
+        target.trigger("set." + key, value);
       }
     });
   };
@@ -286,6 +286,7 @@ var Store = function Store(el) {
       } else {
         Object.keys(values).forEach(function (key) {
           el[key] = values[key];
+          el.trigger("set." + key, el);
         });
       }
     } else {
