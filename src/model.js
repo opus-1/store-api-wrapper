@@ -44,20 +44,19 @@ var Model = function(options){
           }
           if('length' in response){
             var response = response.map(function(data){
-              return processResponse(data)
+              return processResponse(data);
             })
           }else{
-            var response = processResponse(response)
+            var response = processResponse(response);
           }
           var setObject = {};
-          setObject[action + "-" + md5(promise.sendParams)] = response
-          model.config.store.set(setObject);
+          model.config.store.set(action + "-" + md5(promise.sendParams), response);
           promise.resolve(response);
         })
       }else{
-        promise.resolve(model.config.store[storeKey])
+        promise.resolve(model.config.store[storeKey]);
       }
-      model.config.store[action]
+      model.config.store[action];
 
       return promise;
     }

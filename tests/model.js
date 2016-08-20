@@ -41,7 +41,7 @@ function newUserModel (config){
   
   config = config || {};
   config.client = client;
-  config.store = Store();
+  config.store = Store;
   config.sendParams = function(params){
      return {
         id: params.id,

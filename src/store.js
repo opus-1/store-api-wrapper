@@ -6,6 +6,7 @@ var Store = (function() {
    */
 
   el = {}
+  el.data = {};
 
   el.persist = function(key, store){
     if(!store){
@@ -14,8 +15,10 @@ var Store = (function() {
     }
     el.storeKey = key;
     el.store = store;
-    data = el.store.getItem(key);
-    if(data){
+    if(el.store){
+      data = el.store.getItem(key);
+    }
+    if(data && el.store){
       el.data = JSON.parse(el.store.getItem(el.storeKey));
     }
   }
@@ -72,14 +75,16 @@ var Store = (function() {
    */
 
   defineProperty('get', function(target) {
-    var data = el.data[target];
+    var data = el.data[target] || {};
     data.onChange = function(callback){
-      data.on(target, callback);
+
+      el.on('set.' + target, callback);
+
       return { detach: function(){
-        data.off(target, callback);
+        el.off('set.' + target, callback);
       }}
     }
-    return data
+    return data;
   })
 
 
@@ -90,12 +95,24 @@ var Store = (function() {
    * @returns { Object } el
    */
   defineProperty('set', function(target, values) {
+    if(typeof values != "object"){
+      throw "Target value must start with an object as the root node!"
+    }
     el.data[target] = values;
     el.trigger("set."+target, el);
-    el.store.setItem(el.storeKey, JSON.stringify(el.data));
-
-    return el;
+    if(el.store){
+      el.store.setItem(el.storeKey, JSON.stringify(el.data));
+    }
+    var data = el.data[target]
+    data.onChange = function(callback){
+      el.on('set.' + target, callback);
+      return { detach: function(){
+        el.off(target, callback);
+      }}
+    }
+    return data;
   })
+
 
   /**
    * Removes the given space separated list of `events` listeners

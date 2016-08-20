@@ -147,8 +147,7 @@ var Model = function Model(options) {
             var response = processResponse(response);
           }
           var setObject = {};
-          setObject[action + "-" + md5(promise.sendParams)] = response;
-          model.config.store.set(setObject);
+          model.config.store.set(action + "-" + md5(promise.sendParams), response);
           promise.resolve(response);
         });
       } else {
@@ -210,16 +209,34 @@ if (typeof jQuery != "undefined") {
 }
 
 module.exports = Model;
-'use strict';
+"use strict";
 
-var Store = function Store(el) {
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+var Store = function () {
 
   /**
    * Extend the original object or create a new empty one
    * @type { Object }
    */
 
-  el = el || {};
+  el = {};
+  el.data = {};
+
+  el.persist = function (key, store) {
+    if (!store) {
+      store = key;
+      key = "store";
+    }
+    el.storeKey = key;
+    el.store = store;
+    if (el.store) {
+      data = el.store.getItem(key);
+    }
+    if (data && el.store) {
+      el.data = JSON.parse(el.store.getItem(el.storeKey));
+    }
+  };
 
   /**
    * Private variables and methods
@@ -242,13 +259,10 @@ var Store = function Store(el) {
       values = el.model(values);
     }
 
-    Object.keys(values).forEach(function (key) {
-      value = values[key];
-      target[key] = value;
-      if (target == el) {
-        target.trigger("set." + key, value);
-      }
-    });
+    target[key] = values;
+    if (target == el) {
+      target.trigger("set." + key, value);
+    }
   };
 
   /**
@@ -270,31 +284,48 @@ var Store = function Store(el) {
   });
 
   /**
+   * Get data using key
+   * @param  { String } events - events ids
+   * @param  { Function } fn - callback function
+   * @returns { Object } el
+   */
+
+  defineProperty('get', function (target) {
+    var data = el.data[target] || {};
+    data.onChange = function (callback) {
+
+      el.on('set.' + target, callback);
+
+      return { detach: function detach() {
+          el.off('set.' + target, callback);
+        } };
+    };
+    return data;
+  });
+
+  /**
    * Set data on element
    * @param  { String } events - events ids
    * @param  { Anything } anything you want to attach
    * @returns { Object } el
    */
-  defineProperty('set', function (values) {
-
-    if ("length" in el) {
-      el.splice(0, el.length);
-      if ("length" in values) {
-        values.forEach(function (row) {
-          el.push(processData({}, row));
-        });
-      } else {
-        Object.keys(values).forEach(function (key) {
-          el[key] = values[key];
-          el.trigger("set." + key, el);
-        });
-      }
-    } else {
-      processData(el, values);
+  defineProperty('set', function (target, values) {
+    if ((typeof values === "undefined" ? "undefined" : _typeof(values)) != "object") {
+      throw "Target value must start with an object as the root node!";
     }
-    el.trigger("set", el);
-
-    return el;
+    el.data[target] = values;
+    el.trigger("set." + target, el);
+    if (el.store) {
+      el.store.setItem(el.storeKey, JSON.stringify(el.data));
+    }
+    var data = el.data[target];
+    data.onChange = function (callback) {
+      el.on('set.' + target, callback);
+      return { detach: function detach() {
+          el.off(target, callback);
+        } };
+    };
+    return data;
   });
 
   /**
@@ -375,7 +406,7 @@ var Store = function Store(el) {
   });
 
   return el;
-};
+}();
 
 module.exports = Store;
 //# sourceMappingURL=dist.js.map
