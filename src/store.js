@@ -1,12 +1,24 @@
-var Store = function(el) {
+var Store = (function() {
 
   /**
    * Extend the original object or create a new empty one
    * @type { Object }
    */
 
-  el = el || {}
+  el = {}
 
+  el.persist = function(key, store){
+    if(!store){
+      store = key;
+      key = "store";
+    }
+    el.storeKey = key;
+    el.store = store;
+    data = el.store.getItem(key);
+    if(data){
+      el.data = JSON.parse(el.store.getItem(el.storeKey));
+    }
+  }
 
   /**
    * Private variables and methods
@@ -27,13 +39,10 @@ var Store = function(el) {
         values = el.model(values)
       }
 
-      Object.keys(values).forEach(function(key){
-        value = values[key];
-        target[key] = value
-        if(target == el){
-          target.trigger("set." + key, value)
-        }
-      })
+      target[key] = values
+      if(target == el){
+        target.trigger("set." + key, value)
+      }
     }
 
   /**
@@ -54,6 +63,25 @@ var Store = function(el) {
     return el
   })
 
+  
+  /**
+   * Get data using key
+   * @param  { String } events - events ids
+   * @param  { Function } fn - callback function
+   * @returns { Object } el
+   */
+
+  defineProperty('get', function(target) {
+    var data = el.data[target];
+    data.onChange = function(callback){
+      data.on(target, callback);
+      return { detach: function(){
+        data.off(target, callback);
+      }}
+    }
+    return data
+  })
+
 
   /**
    * Set data on element
@@ -61,26 +89,12 @@ var Store = function(el) {
    * @param  { Anything } anything you want to attach
    * @returns { Object } el
    */
-  defineProperty('set', function(values) {
+  defineProperty('set', function(target, values) {
+    el.data[target] = values;
+    el.trigger("set."+target, el);
+    el.store.setItem(el.storeKey, JSON.stringify(el.data));
 
-    if("length" in el){
-      el.splice(0,el.length);
-      if("length" in values){
-        values.forEach(function(row){
-          el.push(processData({}, row));
-        })  
-      }else{
-        Object.keys(values).forEach(function(key){
-          el[key] = values[key];
-          el.trigger("set."+key, el);
-        })
-      }
-    }else{
-      processData(el, values);
-    }
-    el.trigger("set", el);
-    
-    return el
+    return el;
   })
 
   /**
@@ -161,6 +175,6 @@ var Store = function(el) {
 
   return el
 
-}
+})()
 
 module.exports = Store
