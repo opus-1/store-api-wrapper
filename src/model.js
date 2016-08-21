@@ -50,7 +50,7 @@ var Model = function(options){
             var response = processResponse(response);
           }
           var setObject = {};
-          model.config.store.set(action + "-" + md5(promise.sendParams), response);
+          model.config.store(action + "-" + md5(promise.sendParams)).set(response);
           promise.resolve(response);
         })
       }else{
