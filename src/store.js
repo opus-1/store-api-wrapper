@@ -3,7 +3,7 @@ var Store = function(dataKey){
     dataKey: dataKey,
     db: Store.db,
     merge: function(data){
-      return this.db.set(this.dataKey, data);
+      return this.db.merge(this.dataKey, data);
     },
     set: function(data){
       return this.db.set(this.dataKey, data);
