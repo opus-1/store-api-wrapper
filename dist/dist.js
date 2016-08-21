@@ -217,6 +217,9 @@ var Store = function Store(dataKey) {
   var store = {
     dataKey: dataKey,
     db: Store.db,
+    merge: function merge(data) {
+      return this.db.set(this.dataKey, data);
+    },
     set: function set(data) {
       return this.db.set(this.dataKey, data);
     },
@@ -232,7 +235,7 @@ var Store = function Store(dataKey) {
     was: function was() {
       return this.db.dataWas(dataKey);
     },
-    and: function and(subDataKey) {
+    store: function store(subDataKey) {
       return Store(this.dataKey + "." + subDataKey);
     }
   };
@@ -676,7 +679,21 @@ Store.db = function (store) {
   store.getWas = function (name) {
     return this.dataWas[name];
   };
+  store.merge = function (name, data) {
+    var dataWas = JSON.parse(JSON.stringify(this.get(name)));
+    if ((typeof data === "undefined" ? "undefined" : _typeof(data)) != "object" || typeof data == "object " && "length" in data) {
+      throw "Merge requires params to be object";
+    }
+    if ((typeof dataWas === "undefined" ? "undefined" : _typeof(dataWas)) != "object" || typeof dataWas == "object " && "length" in data) {
+      throw "Merge requires source data to be object";
+    }
 
+    Object.keys(data).forEach(function (key) {
+      dataWas[key] = data[key];
+    });
+
+    this.set(name, dataWas);
+  };
   store.set = function (name, data) {
     this.dataWas[name] = this.data[name];
     this.data[name] = data;

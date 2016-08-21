@@ -2,6 +2,9 @@ var Store = function(dataKey){
   var store = {
     dataKey: dataKey,
     db: Store.db,
+    merge: function(data){
+      return this.db.set(this.dataKey, data);
+    },
     set: function(data){
       return this.db.set(this.dataKey, data);
     },
@@ -461,7 +464,23 @@ Store.db = (function(store) {
   store.getWas = function(name){
     return this.dataWas[name];
   }
+  store.merge = function(name, data){
+    var dataWas = JSON.parse(JSON.stringify(this.get(name)));
+    if(typeof data != "object" || (typeof data == "object " && "length" in data)){
+      throw "Merge requires params to be object";
+    } 
+    if(typeof dataWas != "object" || (typeof dataWas == "object " && "length" in data)){
+      throw "Merge requires source data to be object";
+    }
+    
+    
+    Object.keys(data).forEach(function(key){
+      dataWas[key] = data[key];
+    })
 
+    this.set(name, dataWas);
+
+  }
   store.set = function(name, data){
     this.dataWas[name] = this.data[name]
     this.data[name] = data;
