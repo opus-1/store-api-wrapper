@@ -209,7 +209,7 @@ if (typeof jQuery != "undefined") {
 }
 
 module.exports = Model;
-'use strict';
+"use strict";
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
@@ -231,6 +231,9 @@ var Store = function Store(dataKey) {
     },
     was: function was() {
       return this.db.dataWas(dataKey);
+    },
+    and: function and(subDataKey) {
+      return Store(this.dataKey + "." + subDataKey);
     }
   };
 
@@ -813,7 +816,7 @@ Store.db = function (store) {
       return this.observe('decrease', callback);
     };
     observable.isEqualTo = function (value, callback) {
-      if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) == "object") {
+      if ((typeof value === "undefined" ? "undefined" : _typeof(value)) == "object") {
         value = JSON.stringify(value);
       }
       return this.observe(md5(value), callback);

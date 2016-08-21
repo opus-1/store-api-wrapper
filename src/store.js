@@ -16,6 +16,9 @@ var Store = function(dataKey){
     },
     was: function(){
       return this.db.dataWas(dataKey)
+    },
+    and: function(subDataKey){
+      return Store(this.dataKey + "." + subDataKey)
     }
   }
 
