@@ -5,6 +5,9 @@ var Store = function(dataKey){
     merge: function(data){
       return this.db.merge(this.dataKey, data);
     },
+    setDefault: function(data){
+      return this.db.setDefault(this.dataKey, data);
+    },
     set: function(data){
       return this.db.set(this.dataKey, data);
     },
@@ -463,6 +466,10 @@ Store.db = (function(store) {
   }
   store.getWas = function(name){
     return this.dataWas[name];
+  }
+  store.setDefault = function(defaultData){
+    var data = this.data[name] || defaultData;
+    return store.set(data);
   }
   store.merge = function(name, data){
     var dataWas = JSON.parse(JSON.stringify(this.get(name)));

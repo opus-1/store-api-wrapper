@@ -218,7 +218,10 @@ var Store = function Store(dataKey) {
     dataKey: dataKey,
     db: Store.db,
     merge: function merge(data) {
-      return this.db.set(this.dataKey, data);
+      return this.db.merge(this.dataKey, data);
+    },
+    setDefault: function setDefault(data) {
+      return this.db.setDefault(this.dataKey, data);
     },
     set: function set(data) {
       return this.db.set(this.dataKey, data);
@@ -678,6 +681,10 @@ Store.db = function (store) {
   };
   store.getWas = function (name) {
     return this.dataWas[name];
+  };
+  store.setDefault = function (defaultData) {
+    var data = this.data[name] || defaultData;
+    return store.set(data);
   };
   store.merge = function (name, data) {
     var dataWas = JSON.parse(JSON.stringify(this.get(name)));
