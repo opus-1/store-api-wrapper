@@ -593,6 +593,16 @@ Store.db = (function(store) {
         detachable.detach = function(){
           return store.observable.off(detachable.trigger, this.callback);
         }
+        detachable.react = function(component){
+          oldComponenentWillUnmount = component.componentWillUnmount
+          component.componentWillUnmount = function(){
+            if(oldComponenentWillUnmount){
+              oldComponenentWillUnmount.bind(component)
+            }
+            detachable.detach()
+          }
+          return store.observable.off(detachable.trigger, this.callback);
+        }
         return detachable
     }
     observable.update = function(callback){
