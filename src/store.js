@@ -25,6 +25,9 @@ var Store = function(dataKey){
     },
     store: function(subDataKey){
       return Store(this.dataKey + "." + subDataKey)
+    },
+    trigger: function(action){
+      return this.db.observable.trigger(this.dataKey + "." + action);
     }
   }
 
@@ -460,7 +463,9 @@ Store.db = (function(store) {
    ***
    *****************************************************
    *****************************************************/
-
+  store.trigger = function(name){
+    this.observable.trigger()
+  }
   store.get = function(name){
     return this.data[name];
   }
