@@ -68,7 +68,7 @@ describe('Store', function() {
     });
 
   })
-  describe('#push #merge #setDefault', function() {
+  describe('#push #merge #setDefault remove', function() {
     it('should allow push on data', function() {
       Store("users.ids").push("carson")      
       assert.equal(Store("users.ids").get().toString(), ["carson"].toString())
@@ -94,6 +94,12 @@ describe('Store', function() {
       Store("user.id").set(null)
       Store("user.id").setDefault(200)
       assert.equal(Store("user.id").get(), 200)
+    });
+
+    it('should allow you to remove items from a list', function() {
+      Store("user.ids").set(["a", "b", "c"])
+      Store("user.ids").remove("a")
+      assert.equal(JSON.stringify(Store("user.ids").get()), JSON.stringify(["b", "c"]))
     });
   })
   describe('#increase #decrease', function() {

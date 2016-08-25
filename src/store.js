@@ -20,6 +20,11 @@ var Store = function(dataKey){
       var mergedData = sourceData.concat([data]);
       return this.db.set(this.dataKey, mergedData);
     },
+    remove: function(data){
+      var sourceData = (this.db.get(this.dataKey) || []);
+      sourceData.splice(sourceData.indexOf(data), 1);
+      return this.db.set(this.dataKey, sourceData);
+    },
     get: function(){
       return this.db.get(this.dataKey);
     },

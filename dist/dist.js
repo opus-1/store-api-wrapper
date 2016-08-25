@@ -235,6 +235,11 @@ var Store = function Store(dataKey) {
       var mergedData = sourceData.concat([data]);
       return this.db.set(this.dataKey, mergedData);
     },
+    remove: function remove(data) {
+      var sourceData = this.db.get(this.dataKey) || [];
+      sourceData.splice(sourceData.indexOf(data), 1);
+      return this.db.set(this.dataKey, sourceData);
+    },
     get: function get() {
       return this.db.get(this.dataKey);
     },
