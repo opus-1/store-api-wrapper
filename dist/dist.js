@@ -237,8 +237,11 @@ var Store = function Store(dataKey) {
     },
     remove: function remove(data) {
       var sourceData = this.db.get(this.dataKey) || [];
-      sourceData.splice(sourceData.indexOf(data), 1);
-      return this.db.set(this.dataKey, sourceData);
+      if (sourceData.indexOf(data) != -1) {
+        sourceData.splice(sourceData.indexOf(data), 1);
+        return this.db.set(this.dataKey, sourceData);
+      }
+      return this.db.get(this.dataKey);
     },
     get: function get() {
       return this.db.get(this.dataKey);

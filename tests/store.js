@@ -101,6 +101,12 @@ describe('Store', function() {
       Store("user.ids").remove("a")
       assert.equal(JSON.stringify(Store("user.ids").get()), JSON.stringify(["b", "c"]))
     });
+
+    it('should allow you to remove items from a list but does not remove wanted items if unwanted item does not exist', function() {
+      Store("user.ids").set(["a", "b", "c"])
+      Store("user.ids").remove("n")
+      assert.equal(JSON.stringify(Store("user.ids").get()), JSON.stringify(["a", "b", "c"]))
+    });
   })
   describe('#increase #decrease', function() {
     it('should give access to increase for integers', function() {
