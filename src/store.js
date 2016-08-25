@@ -3,6 +3,10 @@ var Store = function(dataKey){
     dataKey: dataKey,
     db: Store.db,
     merge: function(data){
+      var currentData = this.db.get(this.dataKey);
+      if(!(typeof currentData == "object" && !Array.isArray(currentData))){
+        this.store(this.dataKey).set({})
+      }
       return this.db.merge(this.dataKey, data);
     },
     setDefault: function(data){
@@ -10,6 +14,11 @@ var Store = function(dataKey){
     },
     set: function(data){
       return this.db.set(this.dataKey, data);
+    },
+    push: function(data){
+      var sourceData = (this.db.get(this.dataKey) || []);
+      var mergedData = sourceData.concat([data]);
+      return this.db.set(this.dataKey, mergedData);
     },
     get: function(){
       return this.db.get(this.dataKey);
@@ -21,7 +30,7 @@ var Store = function(dataKey){
       return this.db.decrease(dataKey)
     },
     was: function(){
-      return this.db.dataWas(dataKey)
+      return this.db.was(dataKey)
     },
     store: function(subDataKey){
       return Store(this.dataKey + "." + subDataKey)
@@ -469,12 +478,12 @@ Store.db = (function(store) {
   store.get = function(name){
     return this.data[name];
   }
-  store.getWas = function(name){
+  store.was = function(name){
     return this.dataWas[name];
   }
-  store.setDefault = function(defaultData){
+  store.setDefault = function(name, defaultData){
     var data = this.data[name] || defaultData;
-    return store.set(data);
+    return store.set(name, data);
   }
   store.merge = function(name, data){
     var dataWas = JSON.parse(JSON.stringify(this.get(name)));
@@ -524,11 +533,11 @@ Store.db = (function(store) {
       this.observable.trigger(name + '.notBlank') 
     }
 
-    if(typeof this.data[name] == "object" && !("length" in this.data[name])){
+    if(typeof this.data[name] == "object" && !(Array.isArray(this.data[name]))){
       this.observable.trigger(name + '.isObject') 
     }
 
-    if(typeof this.data[name] == "object" && "length" in this.data[name]){
+    if(typeof this.data[name] == "object" && Array.isArray(this.data[name])){
       this.observable.trigger(name + '.isArray') 
     }
 
@@ -562,13 +571,13 @@ Store.db = (function(store) {
   }
 
   store.increase = function(name){
-    this.data[name] = this.data[name] || 0
+    this.data[name] = this.data[name] || 0;
     if(typeof this.data[name] == "number"){
       this.set(name, this.data[name] + 1)
     }
   }
   store.decrease = function(name){
-    this.data[name] = this.data[name] || 0
+    this.data[name] = this.data[name] || 0;
     if(typeof this.data[name] == "number"){
       this.set(name, this.data[name] - 1)
     }

@@ -218,6 +218,10 @@ var Store = function Store(dataKey) {
     dataKey: dataKey,
     db: Store.db,
     merge: function merge(data) {
+      var currentData = this.db.get(this.dataKey);
+      if (!((typeof currentData === "undefined" ? "undefined" : _typeof(currentData)) == "object" && !Array.isArray(currentData))) {
+        this.store(this.dataKey).set({});
+      }
       return this.db.merge(this.dataKey, data);
     },
     setDefault: function setDefault(data) {
@@ -225,6 +229,11 @@ var Store = function Store(dataKey) {
     },
     set: function set(data) {
       return this.db.set(this.dataKey, data);
+    },
+    push: function push(data) {
+      var sourceData = this.db.get(this.dataKey) || [];
+      var mergedData = sourceData.concat([data]);
+      return this.db.set(this.dataKey, mergedData);
     },
     get: function get() {
       return this.db.get(this.dataKey);
@@ -236,7 +245,7 @@ var Store = function Store(dataKey) {
       return this.db.decrease(dataKey);
     },
     was: function was() {
-      return this.db.dataWas(dataKey);
+      return this.db.was(dataKey);
     },
     store: function store(subDataKey) {
       return Store(this.dataKey + "." + subDataKey);
@@ -684,12 +693,12 @@ Store.db = function (store) {
   store.get = function (name) {
     return this.data[name];
   };
-  store.getWas = function (name) {
+  store.was = function (name) {
     return this.dataWas[name];
   };
-  store.setDefault = function (defaultData) {
+  store.setDefault = function (name, defaultData) {
     var data = this.data[name] || defaultData;
-    return store.set(data);
+    return store.set(name, data);
   };
   store.merge = function (name, data) {
     var dataWas = JSON.parse(JSON.stringify(this.get(name)));
@@ -737,11 +746,11 @@ Store.db = function (store) {
       this.observable.trigger(name + '.notBlank');
     }
 
-    if (_typeof(this.data[name]) == "object" && !("length" in this.data[name])) {
+    if (_typeof(this.data[name]) == "object" && !Array.isArray(this.data[name])) {
       this.observable.trigger(name + '.isObject');
     }
 
-    if (_typeof(this.data[name]) == "object" && "length" in this.data[name]) {
+    if (_typeof(this.data[name]) == "object" && Array.isArray(this.data[name])) {
       this.observable.trigger(name + '.isArray');
     }
 
