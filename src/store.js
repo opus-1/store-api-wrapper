@@ -24,7 +24,7 @@ var Store = function(dataKey){
       var sourceData = (this.db.get(this.dataKey) || []);
       if(sourceData.indexOf(data) != -1){
         sourceData.splice(sourceData.indexOf(data), 1);
-        return this.db.set(this.dataKey, sourceData);        
+        return this.db.set(this.dataKey, sourceData);
       }
       return this.db.get(this.dataKey);
     },
@@ -57,6 +57,41 @@ var Store = function(dataKey){
 
   return store;
 }
+Store.reactComponent = function(component){
+  var component = component;
+  component.stores = component.stores || {};
+  component.store = Store;
+  component.detachables = this.detachables || [];
+  component.stores.follow = function(keyAndStore){
+    var key = Object.keys(keyAndStore)[0];
+    var store = keyAndStore[key];
+    var stores = this;
+    stores[key] = component.store(store);
+    callback = function(data){
+      var data = component.store(store).get();
+      var newState = {};
+      newState[key] = data;
+      component.setState(newState);
+    }
+    callback();
+    var detachable = component.store(store).onChange(callback);
+    stores[key].forget = function(){ detachable.detach() };
+    component.stores.detachables = component.stores.detachables || [];
+    component.stores.detachables.push(detachable);
+  }
+  component.stores.forget = function(storeName){
+    this.detachables.forEach(function(store){
+      store.detach();
+    })
+  }
+  componentWillUnmount = component.componentWillUnmount || function(){};
+  component.componentWillUnmount = function(opts){
+    component.stores.forget();
+    componentWillUnmount.bind(component, opts);
+  }
+  return component;
+}
+
 Store.db = (function(store) {
 
 
@@ -497,12 +532,12 @@ Store.db = (function(store) {
     var dataWas = JSON.parse(JSON.stringify(this.get(name)));
     if(typeof data != "object" || (typeof data == "object " && "length" in data)){
       throw "Merge requires params to be object";
-    } 
+    }
     if(typeof dataWas != "object" || (typeof dataWas == "object " && "length" in data)){
       throw "Merge requires source data to be object";
     }
-    
-    
+
+
     Object.keys(data).forEach(function(key){
       dataWas[key] = data[key];
     })
@@ -524,45 +559,45 @@ Store.db = (function(store) {
       }
     }
     if(!this.dataWas[name] || this.dataWas[name] != data){
-      this.observable.trigger(name + '.change')  
+      this.observable.trigger(name + '.change')
     }else if(this.dataWas[name] && this.dataWas[name] == data){
-      this.observable.trigger(name + '.update')  
+      this.observable.trigger(name + '.update')
     }
     if(!this.dataWas[name]){
-      this.observable.trigger(name + '.create') 
+      this.observable.trigger(name + '.create')
     }
     if(this.dataWas[name] && !this.data[name]){
-      this.observable.trigger(name + '.empty') 
+      this.observable.trigger(name + '.empty')
     }
     if(this.dataWas[name] && (this.data[name] == '' || !this.data[name])){
-      this.observable.trigger(name + '.blank') 
+      this.observable.trigger(name + '.blank')
     }
     if(this.data[name] != '' && this.data[name]){
-      this.observable.trigger(name + '.notBlank') 
+      this.observable.trigger(name + '.notBlank')
     }
 
     if(typeof this.data[name] == "object" && !(Array.isArray(this.data[name]))){
-      this.observable.trigger(name + '.isObject') 
+      this.observable.trigger(name + '.isObject')
     }
 
     if(typeof this.data[name] == "object" && Array.isArray(this.data[name])){
-      this.observable.trigger(name + '.isArray') 
+      this.observable.trigger(name + '.isArray')
     }
 
     if(typeof this.data[name] == "string"){
-      this.observable.trigger(name + '.isString') 
+      this.observable.trigger(name + '.isString')
     }
 
     if(typeof this.data[name] == "number"){
-      this.observable.trigger(name + '.isNumber') 
+      this.observable.trigger(name + '.isNumber')
     }
 
     if(typeof this.data[name] == "number" && this.data[name] > this.dataWas[name]){
-      this.observable.trigger(name + '.increase') 
+      this.observable.trigger(name + '.increase')
     }
 
     if(typeof this.data[name] == "number" && this.data[name] < this.dataWas[name]){
-      this.observable.trigger(name + '.decrease') 
+      this.observable.trigger(name + '.decrease')
     }
 
     if(typeof this.data[name] == "object"){
@@ -571,10 +606,10 @@ Store.db = (function(store) {
       triggerData = this.data[name];
     }
 
-    this.observable.trigger(name + "." + md5(triggerData)) 
+    this.observable.trigger(name + "." + md5(triggerData))
 
-    this.observable.trigger(name)  
-    
+    this.observable.trigger(name)
+
     return this.data[name];
   }
 

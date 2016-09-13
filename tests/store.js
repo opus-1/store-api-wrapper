@@ -6,14 +6,14 @@ describe('Store', function() {
   describe('#trigger', function() {
     it('on should trigger when using set method', function() {
       Store("users").onUpdate(function(){
-        assert.equal(true, true);  
+        assert.equal(true, true);
       })
       Store("users").set({a: "b"})
     });
 
     it('on should trigger all callbacks when all is used as the key', function() {
       Store("users").onChange("set", function(){
-        assert.equal(true, true);  
+        assert.equal(true, true);
       })
       Store.db.observable.trigger("all")
     });
@@ -22,14 +22,14 @@ describe('Store', function() {
   describe('#on', function() {
     it('on should trigger when trigger is called', function() {
       Store("users").onUpdate(function(){
-        assert.equal(true, true);  
+        assert.equal(true, true);
       })
       Store.db.observable.trigger("set")
     });
 
     it('on should trigger when * is the listener and regardless of what the trigger is', function() {
       Store("users").onChange(function(){
-        assert.equal(true, true);  
+        assert.equal(true, true);
       })
       Store.db.observable.trigger("*")
     });
@@ -42,10 +42,10 @@ describe('Store', function() {
 
     it('should respond to data that has been changed', function() {
       this.waitTime = 1000;
-      
-      
+
+
       Store("users").onChange(function(){
-        assert.equal(data.firstName, "carson")  
+        assert.equal(data.firstName, "carson")
       })
       Store("users").set({firstName: "carson"})
     });
@@ -70,7 +70,7 @@ describe('Store', function() {
   })
   describe('#push #merge #setDefault remove', function() {
     it('should allow push on data', function() {
-      Store("users.ids").push("carson")      
+      Store("users.ids").push("carson")
       assert.equal(Store("users.ids").get().toString(), ["carson"].toString())
     });
 
@@ -119,6 +119,45 @@ describe('Store', function() {
       Store("user.id").set(0)
       Store("user.id").decrease()
       assert.equal(Store("user.id").get(), -1)
+    });
+  })
+  describe('#reactComponent', function() {
+    it('should give access to increase for integers', function() {
+      fakeReact = {
+        state: {},
+        setState: function(data){
+          Object.keys(data).forEach(function(key){
+              fakeReact.state[key] = data[key];
+          })
+        }
+      }
+      assert.ok(Store.reactComponent({}).stores.follow);
+      assert.ok(Store.reactComponent({}).stores.forget);
+
+      component = Store.reactComponent(fakeReact);
+      component.store("hello").set("default");
+      assert.equal(component.store("hello").get(), "default");
+
+      component.stores.follow({test: "hello"});
+      component.stores.test.set("New Value");
+      assert.equal(component.state.test, "New Value")
+
+      component.stores.follow({test: "hello"});
+      component.store("hello").set("Newest Value");
+      assert.equal(component.state.test, "Newest Value")
+
+      component.stores.forget()
+
+      component.store("hello").set("Newest Newest Value");
+      assert.equal(component.state.test, "Newest Value")
+
+      component.stores.follow({test: "test"});
+      component.stores.test.set("default value");
+      assert.equal(component.state.test, "default value");
+
+      component.componentWillUnmount();
+      component.stores.test.set("new value");
+      assert.equal(component.state.test, "default value");
     });
   })
 });

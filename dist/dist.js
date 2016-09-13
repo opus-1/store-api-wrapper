@@ -272,6 +272,43 @@ var Store = function Store(dataKey) {
 
   return store;
 };
+Store.reactComponent = function (component) {
+  var component = component;
+  component.stores = component.stores || {};
+  component.store = Store;
+  component.detachables = this.detachables || [];
+  component.stores.follow = function (keyAndStore) {
+    var key = Object.keys(keyAndStore)[0];
+    var store = keyAndStore[key];
+    var stores = this;
+    stores[key] = component.store(store);
+    callback = function callback(data) {
+      var data = component.store(store).get();
+      var newState = {};
+      newState[key] = data;
+      component.setState(newState);
+    };
+    callback();
+    var detachable = component.store(store).onChange(callback);
+    stores[key].forget = function () {
+      detachable.detach();
+    };
+    component.stores.detachables = component.stores.detachables || [];
+    component.stores.detachables.push(detachable);
+  };
+  component.stores.forget = function (storeName) {
+    this.detachables.forEach(function (store) {
+      store.detach();
+    });
+  };
+  componentWillUnmount = component.componentWillUnmount || function () {};
+  component.componentWillUnmount = function (opts) {
+    component.stores.forget();
+    componentWillUnmount.bind(component, opts);
+  };
+  return component;
+};
+
 Store.db = function (store) {
 
   /*****************************************************
