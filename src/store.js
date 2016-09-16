@@ -609,7 +609,7 @@ Store.db = (function(store) {
     this.observable.trigger(name + "." + md5(triggerData))
 
     this.observable.trigger(name)
-    this.observable.trigger("*.set")
+    this.observable.trigger("update")
     return this.data[name];
   }
 
