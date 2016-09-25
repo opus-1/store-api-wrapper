@@ -23,7 +23,7 @@ var Client = function(config){
     return c.config.scope.join("").length == 0 || c.config.scope.indexOf(scope) != -1;
   }
 
-  
+
   var setAction = function(actionName, type, path){
     c[actionName] = function(params, paramsTwo){
       if(paramsTwo == undefined){
@@ -31,7 +31,7 @@ var Client = function(config){
       }
       return c.jQuery.ajax({
         method: type,
-        url: path(params), 
+        url: path(params),
         data: paramsTwo
       })
     }
@@ -52,11 +52,11 @@ var Client = function(config){
       return path
     })
   }
-  
+
   if(scopeCheck("find")){
     setAction("find", "get", function(){ return c.config.path + c.config.crudUrls.find})
   }
-  
+
   if(scopeCheck("findOne")){
     setAction("findOne", "get", function(params){
       var path = c.config.crudUrls.findOne.replace(":id", params.id);
@@ -78,7 +78,7 @@ var Client = function(config){
 
 Client.config = {
   crudUrls: {
-    create: "", 
+    create: "",
     update: "/:id",
     find: "",
     findOne: "/:id",
@@ -91,4 +91,6 @@ if(typeof jQuery != "undefined"){
 }else{
   Client.jQuery = {};
 }
-module.exports = Client
+if(typeof module != "undefined"){
+  module.exports = Client
+}
