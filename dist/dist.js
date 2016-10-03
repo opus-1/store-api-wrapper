@@ -848,15 +848,17 @@ Store.db = function (store) {
     this.observable.trigger(name);
     this.observable.trigger("update");
 
-    var storageData = {};
-    db = this;
+    if (store.storage.get && store.storage.set) {
+      var storageData = store.storage.get() || {};
+      db = this;
 
-    this.remembers.forEach(function (dataName) {
-      storageData[dataName] = db.data[dataName];
-    });
+      this.remembers.forEach(function (dataName) {
+        storageData[dataName] = db.data[dataName];
+      });
 
-    if (store.storage.set) {
-      store.storage.set(storageData);
+      if (Object.keys(storageData).length != 0 && store.storage.set && this.remembers.length != 0) {
+        store.storage.set(storageData);
+      }
     }
 
     return this.data[name];

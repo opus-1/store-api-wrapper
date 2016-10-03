@@ -180,8 +180,8 @@ describe('Store', function() {
       Store("1.here.itis").set("itis");
 
       value = Store.db.sessionStorage.getItem("observable-store")
-      assert.equal(JSON.parse(value)["1.here"], undefined);
-      assert.equal(JSON.parse(value)["1.here.itis"], undefined);
+      assert.equal(value, undefined);
+      assert.equal(value, undefined);
 
       Store("2.here").remember();
       Store("2.here.itis").remember();
