@@ -179,6 +179,7 @@ describe('Store', function() {
       Store("1.here").set("there");
       Store("1.here.itis").set("itis");
 
+      value = Store.db.sessionStorage.getItem("observable-store")
       assert.equal(JSON.parse(value)["1.here"], undefined);
       assert.equal(JSON.parse(value)["1.here.itis"], undefined);
 
@@ -186,10 +187,11 @@ describe('Store', function() {
       Store("2.here.itis").remember();
       Store("2.here").set("there");
       Store("2.here.itis").set("itis");
-      value = Store.db.sessionStorage.getItem("observable-store")
 
+      value = Store.db.sessionStorage.getItem("observable-store")
       assert.equal(JSON.parse(value)["2.here"], "there");
       assert.equal(JSON.parse(value)["2.here.itis"], "itis");
+      assert.equal(JSON.stringify(Store.db.storage.get()), JSON.stringify({ '2.here': 'there', '2.here.itis': 'itis' }))
     })
   })
 });

@@ -129,10 +129,14 @@ Store.db = (function(store) {
     }
 
     store.storage.get = function(data){
-      return JSON.parse(store.sessionStorage.getItem("observable-store"));
+      if(store.sessionStorage.getItem("observable-store")){
+        return JSON.parse(store.sessionStorage.getItem("observable-store"));
+      }
     }
 
-    store.data = store.storage.get();
+    if(store.storage.get()){
+      store.data = store.storage.get();
+    }
 
     try{
       if(store.sessionStorage.getItem("observable-store")){
