@@ -92,7 +92,9 @@ if (typeof jQuery != "undefined") {
 } else {
   Client.jQuery = {};
 }
-module.exports = Client;
+if (typeof module != "undefined") {
+  module.exports = Client;
+}
 "use strict";
 
 var md5 = require("../node_modules/blueimp-md5/js/md5");
@@ -211,7 +213,7 @@ if (typeof jQuery != "undefined") {
 module.exports = Model;
 "use strict";
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var Store = function Store(dataKey) {
   var store = {
@@ -260,6 +262,9 @@ var Store = function Store(dataKey) {
     },
     trigger: function trigger(action) {
       return this.db.observable.trigger(this.dataKey + "." + action);
+    },
+    remember: function remember() {
+      this.db.remembers.push(this.dataKey);
     }
   };
 
@@ -323,20 +328,36 @@ Store.db = function (store) {
   store.data = {};
   store.dataWas = {};
   store.debug = false;
-  store.persist = function (pStore) {
-    this.persistentStore = pStore;
-    this.persistentStoreKey = this.persistentStoreKey || 'observable-store';
-    var storeData = this.persistentStore.getItem(this.persistentStoreKey);
-    if (storeData) {
-      try {
-        storeData = JSON.parse(storeData);
-      } catch (error) {
-        if (this.debug) {
-          throw error;
-        }
-      }
+
+  store.storage = function (set, get) {
+    this.storage.set = set;
+    this.storage.get = get;
+    if (get) {
+      this.data = this.storage.get();
     }
   };
+
+  if (typeof sessionStorage != "undefined") {
+    store.sessionStorage = sessionStorage;
+  }
+  if (store.sessionStorage) {
+    store.sessionStorage = sessionStorage;
+    store.storage.set = function (data) {
+      store.sessionStorage.setItem("observable-store", JSON.stringify(data));
+    };
+
+    store.storage.get = function (data) {
+      JSON.parse(store.sessionStorage.getItem("observable-store"));
+    };
+
+    try {
+      if (store.sessionStorage.getItem("observable-store")) {
+        store.storage.get(JSON.parse(store.sessionStorage.getItem("observable-store")));
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
   /*****************************************************
    *****************************************************
@@ -732,6 +753,9 @@ Store.db = function (store) {
    ***
    *****************************************************
    *****************************************************/
+  // PERSISTENT STORAGE
+  store.remembers = [];
+
   store.trigger = function (name) {
     this.observable.trigger();
   };
@@ -760,19 +784,11 @@ Store.db = function (store) {
 
     this.set(name, dataWas);
   };
+
   store.set = function (name, data) {
     this.dataWas[name] = this.data[name];
     this.data[name] = data;
 
-    if (this.persistentStore) {
-      try {
-        this.persistentStore.setItem(this.persistentStoreKey, JSON.stringify(this.data));
-      } catch (error) {
-        if (this.debug) {
-          throw error;
-        }
-      }
-    }
     if (!this.dataWas[name] || this.dataWas[name] != data) {
       this.observable.trigger(name + '.change');
     } else if (this.dataWas[name] && this.dataWas[name] == data) {
@@ -824,6 +840,18 @@ Store.db = function (store) {
     this.observable.trigger(name + "." + md5(triggerData));
 
     this.observable.trigger(name);
+    this.observable.trigger("update");
+
+    var storageData = {};
+    db = this;
+
+    this.remembers.forEach(function (dataName) {
+      storageData[dataName] = db.data[dataName];
+    });
+
+    if (store.storage.set) {
+      store.storage.set(storageData);
+    }
 
     return this.data[name];
   };

@@ -1,5 +1,11 @@
 var assert = require('assert');
 
+sessionStorage = {setItem: function(key, value){
+  return this[key] = value;
+}, getItem: function(key){
+  return this[key];
+}}
+
 var Store = require('../src/store');
 
 describe('Store', function() {
@@ -159,5 +165,31 @@ describe('Store', function() {
       component.stores.test.set("new value");
       assert.equal(component.state.test, "default value");
     });
+  })
+  describe('#persist', function() {
+    it('should give access to increase for integers', function() {
+
+
+      Store.db.sessionStorage = {setItem: function(key, value){
+        return this[key] = value;
+      }, getItem: function(key){
+        return this[key];
+      }}
+
+      Store("1.here").set("there");
+      Store("1.here.itis").set("itis");
+
+      assert.equal(JSON.parse(value)["1.here"], undefined);
+      assert.equal(JSON.parse(value)["1.here.itis"], undefined);
+
+      Store("2.here").remember();
+      Store("2.here.itis").remember();
+      Store("2.here").set("there");
+      Store("2.here.itis").set("itis");
+      value = Store.db.sessionStorage.getItem("observable-store")
+
+      assert.equal(JSON.parse(value)["2.here"], "there");
+      assert.equal(JSON.parse(value)["2.here.itis"], "itis");
+    })
   })
 });
