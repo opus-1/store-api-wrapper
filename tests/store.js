@@ -269,11 +269,13 @@ describe('Store', function() {
         m.state = Object.assign({}, m.state, data)
       }
 
+
       m.getInitialState()
       m.componentDidMount()
 
       m.stores.users.set("hello")
 
+      assert.equal(Object.keys(m.stores).join("."), "users.assessments")
       assert.equal(m.state.users, "hello")
     })
   })

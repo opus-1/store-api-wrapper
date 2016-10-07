@@ -329,7 +329,10 @@ Store.ReactMixin = StoresMixin = {
     }
 
     if (followStores instanceof Array) {
-      followStores.forEach(function (item) {
+      followStores.forEach(function (item, i) {
+        if (i == 0) {
+          followStores = {};
+        }
         followStores[item] = item;
       });
     }
@@ -339,6 +342,7 @@ Store.ReactMixin = StoresMixin = {
     c = this;
 
     Object.keys(followStores).forEach(function (key) {
+
       c.stores[key] = Store(followStores[key]);
     });
   }
