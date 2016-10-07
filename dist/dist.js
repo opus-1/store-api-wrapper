@@ -320,25 +320,26 @@ Store.ReactMixin = StoresMixin = {
 
   setStores: function setStores() {
     this.detachables = [];
+    var followStores = {};
 
-    this.stores = (this.followStores || function () {})() || this.followStores || {};
-    var storesArray = this.stores;
+    if (typeof this.followStores == "function") {
+      followStores = this.followStores();
+    } else {
+      followStores = this.followStores;
+    }
 
-    if (this.stores instanceof Array) {
-      storesArray.forEach(function (item) {
-        if (item instanceof Object) {
-          var key = Object.keys(item)[0];
-          c.stores[key] = item[key];
-        } else {
-          c.stores[item] = item;
-        }
+    if (followStores instanceof Array) {
+      followStores.forEach(function (item) {
+        followStores[item] = item;
       });
     }
 
+    var followStores = followStores || {};
+
     c = this;
-    Object.keys(this.stores).forEach(function (stateKey) {
-      var storeKey = c.stores[stateKey];
-      c.stores[stateKey] = Store(storeKey);
+
+    Object.keys(followStores).forEach(function (key) {
+      c.stores[key] = Store(followStores[key]);
     });
   }
 };

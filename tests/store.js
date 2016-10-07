@@ -59,15 +59,17 @@ describe('Store', function() {
     it('should not respond to data that has been changed after being detached', function(done) {
       this.waitTime = 1000;
       Store("users").onChange(function(){
+
         assert.ok(false);
         done();
       }).detach()
 
       Store("users").set({firstName: "carson"})
 
-      Store("users").onChange(function(){
+      detachable = Store("users").onChange(function(){
         assert.ok(true);
         done();
+        detachable.detach()
       })
 
       Store("users").set({firstName: "carson"})
@@ -209,6 +211,7 @@ describe('Store', function() {
       }
       m.getInitialState()
       m.componentDidMount()
+
       m.stores.users.set("here")
 
       assert.equal(m.state.users, "here")
@@ -235,6 +238,43 @@ describe('Store', function() {
       m.componentWillUnmount()
 
       assert.equal(m.state.users, undefined)
+    })
+    it('followStore should accept object', function() {
+      m = Object.assign({}, Store.ReactMixin)
+      m.state = {};
+
+      m.followStores = {
+          users: "users.one",
+          assessments: "assessments.one"
+      }
+
+      m.setState = function(data){
+        m.state = Object.assign({}, m.state, data)
+      }
+
+      m.getInitialState()
+      m.componentDidMount()
+
+      m.stores.users.set("hello")
+      assert.equal(m.state.users, "hello")
+    })
+
+    it('followStore should accept array', function() {
+      m = Object.assign({}, Store.ReactMixin)
+      m.state = {};
+
+      m.followStores = ["users", "assessments"]
+
+      m.setState = function(data){
+        m.state = Object.assign({}, m.state, data)
+      }
+
+      m.getInitialState()
+      m.componentDidMount()
+
+      m.stores.users.set("hello")
+
+      assert.equal(m.state.users, "hello")
     })
   })
 });
