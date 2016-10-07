@@ -277,7 +277,7 @@ var Store = function Store(dataKey) {
 
   return store;
 };
-Store.ReactMixin = StoresMixin = {
+Store.ReactStoreMixin = StoresMixin = {
   getInitialState: function getInitialState() {
     this.setStores();
 

@@ -10,7 +10,7 @@ Store Api Wrapper (Model)
 
 ## Stores
 ### Store Instance
-```javascript 
+```javascript
   users = Store("users");
 ```
 
@@ -34,7 +34,7 @@ Store Api Wrapper (Model)
 ``` javascript
   userId = 1
   users.store(userId).store("profiles").set([{
-    firstName: "John", 
+    firstName: "John",
     lastName: "Doe"
   }]);
 ```
@@ -60,7 +60,29 @@ Store Api Wrapper (Model)
     isNumber
     increase
     decrease
-
+### Store Mixin
+```javascript
+      React.createClass({
+        mixins: [ReactStoreMixin],
+        followStores: function() {
+          // Can be an array, object, or function that returns an array or object
+          // Arrays can contain strings or objects
+          // Strings will be both the state key and store key
+          // Object keys will be the state key and values will be the store key
+          // return ["users", { organization: "currentOrganization"]
+          return {
+            users: "users",
+            assessments: "assessments"
+          }
+        },
+        componentDidMount: function() {
+          this.followChange(Store("users.params").onChange(function() {
+            // Follow more changes
+          }))
+        }
+      })
+      // All the stores or changes that are followed, will be detached in componentDidUnmount
+```
 
 ## Client
 ```javascript
