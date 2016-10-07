@@ -197,7 +197,7 @@ describe('Store', function() {
 
   describe('#reactMixin', function() {
     it('should give access to increase for integers', function() {
-      m = Store.ReactStoreMixin
+      m = Store.ReactMixin
       m.followStores = function(){
         return {
           users: "users.one",

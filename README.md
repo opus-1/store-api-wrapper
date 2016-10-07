@@ -63,7 +63,7 @@ Store Api Wrapper (Model)
 ### Store Mixin
 ```javascript
       React.createClass({
-        mixins: [ReactStoreMixin],
+        mixins: [Store.ReactMixin],
         followStores: function() {
           // Can be an array, object, or function that returns an array or object
           // Arrays can contain strings or objects
