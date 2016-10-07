@@ -62,6 +62,7 @@ var Store = function(dataKey){
 }
 Store.ReactMixin = StoresMixin = {
   getInitialState: function(){
+    this.stores = this.stores || {}
     this.setStores();
 
     var state = {};
@@ -103,7 +104,7 @@ Store.ReactMixin = StoresMixin = {
   setStores: function(){
     this.detachables = [];
 
-    this.stores = (this.followStores || function(){ })() || this.followStores;
+    this.stores = (this.followStores || function(){ })() || this.followStores || {};
     var storesArray = this.stores;
 
     if(this.stores instanceof Array){

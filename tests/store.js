@@ -196,8 +196,8 @@ describe('Store', function() {
   })
 
   describe('#reactMixin', function() {
-    it('should give access to increase for integers', function() {
-      m = Store.ReactMixin
+    it('should load mixin', function() {
+      m = Object.assign({}, Store.ReactMixin)
       m.followStores = function(){
         return {
           users: "users.one",
@@ -218,6 +218,23 @@ describe('Store', function() {
       m.stores.users.set("there")
 
       assert.equal(m.state.users, "here")
+    })
+    it('should load mixin regardless of initialization', function() {
+      m = Object.assign({}, Store.ReactMixin)
+      m.state = {};
+
+      m.setState = function(data){
+        m.state = Object.assign({}, m.state, data)
+      }
+
+      m.getInitialState()
+      m.componentDidMount()
+
+      assert.equal(m.state.users, undefined)
+
+      m.componentWillUnmount()
+
+      assert.equal(m.state.users, undefined)
     })
   })
 });
