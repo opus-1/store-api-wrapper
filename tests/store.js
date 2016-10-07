@@ -194,4 +194,30 @@ describe('Store', function() {
       assert.equal(JSON.stringify(Store.db.storage.get()), JSON.stringify({ '2.here': 'there', '2.here.itis': 'itis' }))
     })
   })
+
+  describe('#reactMixin', function() {
+    it('should give access to increase for integers', function() {
+      m = Store.ReactMixin
+      m.followStores = function(){
+        return {
+          users: "users.one",
+          assessments: "assessments.one"
+        }
+      }
+      m.setState = function(data){
+        m.state = Object.assign({}, m.state, data)
+      }
+      m.getInitialState()
+      m.componentDidMount()
+      m.stores.users.set("here")
+
+      assert.equal(m.state.users, "here")
+
+      m.componentWillUnmount()
+
+      m.stores.users.set("there")
+
+      assert.equal(m.state.users, "here")
+    })
+  })
 });

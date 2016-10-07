@@ -60,6 +60,71 @@ var Store = function(dataKey){
 
   return store;
 }
+Store.ReactMixin = StoresMixin = {
+  getInitialState: function(){
+    this.setStores();
+
+    var state = {};
+    var c = this;
+    Object.keys(this.stores).forEach(function(key){
+      var store = c.stores[key];
+      state[key] = store.get();
+    })
+
+    return state;
+  },
+
+  componentDidMount: function(){
+    c = this
+    Object.keys(this.stores).forEach(function(key){
+      var store = c.stores[key];
+
+      (function(key, store){
+          c.detachables.push(store.onChange(function(){
+            var state = {};
+            state[key] = store.get();
+            c.setState(state);
+          }))
+      })(key, store)
+    })
+  },
+
+  componentWillUnmount: function(){
+    this.detachables = this.detachables || []
+    this.detachables.forEach(function(store){
+      store.detach()
+    })
+  },
+
+  followChange: function(change){
+    this.detachables.push(change)
+  },
+
+  setStores: function(){
+    this.detachables = [];
+
+    this.stores = (this.followStores || function(){ })() || this.followStores;
+    var storesArray = this.stores;
+
+    if(this.stores instanceof Array){
+      storesArray.forEach(function(item){
+        if(item instanceof Object){
+          var key = Object.keys(item)[0];
+          c.stores[key] = item[key];
+        }else{
+          c.stores[item] = item;
+        }
+      })
+    }
+
+    c = this
+    Object.keys(this.stores).forEach(function(stateKey){
+      var storeKey = c.stores[stateKey];
+      c.stores[stateKey] = Store(storeKey);
+    })
+  }
+}
+
 Store.reactComponent = function(component){
   var component = component;
   component.stores = component.stores || {};
