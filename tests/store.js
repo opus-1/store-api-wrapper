@@ -278,5 +278,48 @@ describe('Store', function() {
       assert.equal(Object.keys(m.stores).join("."), "users.assessments")
       assert.equal(m.state.users, "hello")
     })
+
+    it('followStore works with multiple updates', function() {
+      m = Object.assign({}, Store.ReactMixin)
+      m.state = {};
+
+      m.followStores = ["users", "assessments"]
+
+      m.setState = function(data){
+        m.state = Object.assign({}, m.state, data)
+      }
+
+
+      m.getInitialState()
+      m.componentDidMount()
+
+      m.stores.users.set("hello")
+      m.stores.users.set("goodbye")
+
+      assert.equal(Object.keys(m.stores).join("."), "users.assessments")
+      assert.equal(m.state.users, "goodbye")
+    })
+
+    it('New object is returned for each .get()', function() {
+      m = Object.assign({}, Store.ReactMixin)
+      m.state = {};
+
+      m.followStores = ["users"]
+
+      m.setState = function(data){
+        m.state = Object.assign({}, m.state, data)
+      }
+
+
+      m.getInitialState()
+      m.componentDidMount()
+
+      m.stores.users.set({})
+      users = m.stores.users.get()
+      users.name = "hello"
+      Store("users").merge({cat: "me"})
+
+      assert.equal(JSON.stringify(m.state.users), JSON.stringify({cat: "me"}))
+    })
   })
 });

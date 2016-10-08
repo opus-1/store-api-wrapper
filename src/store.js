@@ -618,7 +618,13 @@ Store.db = (function(store) {
     this.observable.trigger()
   }
   store.get = function(name){
-    return this.data[name];
+    var data = this.data[name]
+
+    if(typeof data == "object"){
+      data = JSON.parse(JSON.stringify(data))
+    }
+
+    return data;
   }
   store.was = function(name){
     return this.dataWas[name];
@@ -732,6 +738,7 @@ Store.db = (function(store) {
   }
 
   store.on = function(name){
+    var store = this;
     var observable = {};
     observable.name = name;
     observable.observe = function(trigger, callback){
@@ -744,6 +751,9 @@ Store.db = (function(store) {
           detachable.trigger = observable.name + '.' + trigger;
         }else{
           detachable.trigger = observable.name;
+        }
+        if(typeof callback == "function"){
+          callback = callback.bind(store)
         }
         detachable.callback = callback;
         store.observable.on(detachable.trigger, callback);
