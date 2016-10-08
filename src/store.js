@@ -84,7 +84,8 @@ Store.ReactMixin = StoresMixin = {
           c.detachables.push(store.onChange(function(){
             var state = {};
             state[key] = store.get();
-            c.setState(state);
+
+            c.setState(JSON.parse(JSON.stringify(state)));
           }))
       })(key, store)
     })
