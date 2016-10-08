@@ -76,18 +76,18 @@ Store.ReactMixin = StoresMixin = {
   },
 
   componentDidMount: function(){
-    c = this
+    var c = this
     Object.keys(this.stores).forEach(function(key){
       var store = c.stores[key];
 
-      (function(key, store){
-          c.detachables.push(store.onChange(function(){
-            var state = {};
-            state[key] = store.get();
+      callback = function(){
+        var state = {};
+        state[key] = store.get();
 
-            c.setState(JSON.parse(JSON.stringify(state)));
-          }))
-      })(key, store)
+        c.setState(state);
+      }
+
+      c.detachables.push(store.onChange(callback))
     })
   },
 
@@ -113,17 +113,16 @@ Store.ReactMixin = StoresMixin = {
     }
 
     if(followStores instanceof Array){
-      followStores.forEach(function(item, i){
-        if(i==0){
-          followStores = {}
-        }
+      var fs = followStores;
+      followStores = {};
+      fs.forEach(function(item){
         followStores[item] = item
       })
     }
 
     var followStores = followStores || {};
 
-    c = this;
+    var c = this;
 
     Object.keys(followStores).forEach(function(key){
 
