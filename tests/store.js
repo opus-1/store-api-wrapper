@@ -279,6 +279,25 @@ describe('Store', function() {
       assert.equal(m.state.users, "hello")
     })
 
+    it('followStore should accept array of objects', function() {
+      m = Object.assign({}, Store.ReactMixin)
+      m.state = {};
+
+      m.followStores = ["users", { assessments: "users.assessments" }]
+
+      m.setState = function(data){
+        m.state = Object.assign({}, m.state, data)
+      }
+
+      m.getInitialState()
+      m.componentDidMount()
+
+      Store("users.assessments").set("hello")
+
+      assert.equal(Object.keys(m.stores).join("."), "users.assessments")
+      assert.equal(m.state.assessments, "hello")
+    })
+
     it('followStore works with multiple updates', function() {
       m = Object.assign({}, Store.ReactMixin)
       m.state = {};

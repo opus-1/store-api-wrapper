@@ -116,7 +116,12 @@ Store.ReactMixin = StoresMixin = {
       var fs = followStores;
       followStores = {};
       fs.forEach(function(item){
-        followStores[item] = item
+        if(item instanceof Object) {
+          key = Object.keys(item)[0];
+          followStores[key] = item[key];
+        }else{
+          followStores[item] = item;
+        }
       })
     }
 
