@@ -267,7 +267,7 @@ var Store = function Store(dataKey) {
       this.db.remembers.push(this.dataKey);
 
       if ((this.db.storage.get() || {})[this.dataKey]) {
-        store.data[this.dataKey] = this.db.storage.get()[this.dataKey];
+        this.db.data[this.dataKey] = this.db.storage.get()[this.dataKey];
       }
     }
   };
