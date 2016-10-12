@@ -266,8 +266,9 @@ var Store = function Store(dataKey) {
     remember: function remember() {
       this.db.remembers.push(this.dataKey);
 
-      if ((this.db.storage.get() || {})[this.dataKey]) {
-        this.db.data[this.dataKey] = this.db.storage.get()[this.dataKey];
+      var data;
+      if (data = this.db.storage.get() && data[this.dataKey]) {
+        this.db.data[this.dataKey] = data[this.dataKey];
       }
     }
   };
@@ -409,14 +410,24 @@ Store.db = function (store) {
   store.dataWas = {};
   store.debug = false;
 
+  store.setRemembers = function () {
+    store.remembers.forEach(function (rememberer) {
+      store.data[rememberer] = (store.storage.get() || {})[rememberer];
+    });
+  };
+
   store.storage = function (set, get) {
     this.storage.set = set;
     this.storage.get = get;
+    if (get) {
+      store.setRemembers();
+    }
   };
 
   if (typeof sessionStorage != "undefined") {
     store.sessionStorage = sessionStorage;
   }
+
   if (store.sessionStorage) {
     store.sessionStorage = sessionStorage;
     store.storage.set = function (data) {
@@ -428,6 +439,10 @@ Store.db = function (store) {
         return JSON.parse(store.sessionStorage.getItem("observable-store"));
       }
     };
+
+    if (store.storage.get()) {
+      store.setRemembers();
+    }
 
     try {
       if (store.sessionStorage.getItem("observable-store")) {
@@ -859,6 +874,7 @@ Store.db = function (store) {
     if ((typeof data === "undefined" ? "undefined" : _typeof(data)) != "object" || typeof data == "object " && "length" in data) {
       throw "Merge requires params to be object";
     }
+
     if ((typeof dataWas === "undefined" ? "undefined" : _typeof(dataWas)) != "object" || typeof dataWas == "object " && "length" in data) {
       throw "Merge requires source data to be object";
     }

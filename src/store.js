@@ -49,8 +49,9 @@ var Store = function(dataKey){
     remember: function(){
       this.db.remembers.push(this.dataKey)
 
-      if((this.db.storage.get() || {})[this.dataKey]){
-        this.db.data[this.dataKey] = this.db.storage.get()[this.dataKey];
+      var data;
+      if(data = this.db.storage.get() && data[this.dataKey]){
+        this.db.data[this.dataKey] = data[this.dataKey];
       }
     }
   }
@@ -191,15 +192,24 @@ Store.db = (function(store) {
   store.dataWas = {};
   store.debug = false
 
+  store.setRemembers = function(){
+    store.remembers.forEach(function(rememberer){
+      store.data[rememberer] = (store.storage.get() || {})[rememberer];
+    })
+  }
+
   store.storage = function(set, get){
     this.storage.set = set;
     this.storage.get = get;
-
+    if(get){
+      store.setRemembers();
+    }
   }
 
   if(typeof sessionStorage != "undefined"){
     store.sessionStorage = sessionStorage;
   }
+
   if(store.sessionStorage){
     store.sessionStorage = sessionStorage;
     store.storage.set = function(data){
@@ -210,6 +220,10 @@ Store.db = (function(store) {
       if(store.sessionStorage.getItem("observable-store")){
         return JSON.parse(store.sessionStorage.getItem("observable-store"));
       }
+    }
+
+    if(store.storage.get()){
+      store.setRemembers()
     }
 
     try{
@@ -640,6 +654,7 @@ Store.db = (function(store) {
     if(typeof data != "object" || (typeof data == "object " && "length" in data)){
       throw "Merge requires params to be object";
     }
+
     if(typeof dataWas != "object" || (typeof dataWas == "object " && "length" in data)){
       throw "Merge requires source data to be object";
     }
@@ -744,35 +759,35 @@ Store.db = (function(store) {
     var observable = {};
     observable.name = name;
     observable.observe = function(trigger, callback){
-        var detachable = {};
-        if(typeof trigger == 'function'){
-          callback = trigger;
-          trigger = undefined;
-        }
-        if(trigger){
-          detachable.trigger = observable.name + '.' + trigger;
-        }else{
-          detachable.trigger = observable.name;
-        }
-        if(typeof callback == "function"){
-          callback = callback.bind(store)
-        }
-        detachable.callback = callback;
-        store.observable.on(detachable.trigger, callback);
-        detachable.detach = function(){
-          return store.observable.off(detachable.trigger, this.callback);
-        }
-        detachable.react = function(component){
-          oldComponenentWillUnmount = component.componentWillUnmount
-          component.componentWillUnmount = function(){
-            if(oldComponenentWillUnmount){
-              oldComponenentWillUnmount.bind(component)
-            }
-            detachable.detach()
+      var detachable = {};
+      if(typeof trigger == 'function'){
+        callback = trigger;
+        trigger = undefined;
+      }
+      if(trigger){
+        detachable.trigger = observable.name + '.' + trigger;
+      }else{
+        detachable.trigger = observable.name;
+      }
+      if(typeof callback == "function"){
+        callback = callback.bind(store)
+      }
+      detachable.callback = callback;
+      store.observable.on(detachable.trigger, callback);
+      detachable.detach = function(){
+        return store.observable.off(detachable.trigger, this.callback);
+      }
+      detachable.react = function(component){
+        oldComponenentWillUnmount = component.componentWillUnmount
+        component.componentWillUnmount = function(){
+          if(oldComponenentWillUnmount){
+            oldComponenentWillUnmount.bind(component)
           }
-          return store.observable.off(detachable.trigger, this.callback);
+          detachable.detach()
         }
-        return detachable
+        return store.observable.off(detachable.trigger, this.callback);
+      }
+      return detachable
     }
     observable.update = function(callback){
       return this.observe('update', callback);
