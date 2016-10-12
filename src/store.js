@@ -49,8 +49,8 @@ var Store = function(dataKey){
     remember: function(){
       this.db.remembers.push(this.dataKey)
 
-      var data;
-      if(data = this.db.storage.get() && data[this.dataKey]){
+      var data = this.db.storage.get();
+      if(data && data[this.dataKey]){
         this.db.data[this.dataKey] = data[this.dataKey];
       }
     }
