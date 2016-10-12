@@ -48,6 +48,10 @@ var Store = function(dataKey){
     },
     remember: function(){
       this.db.remembers.push(this.dataKey)
+
+      if((this.db.storage.get() || {})[this.dataKey]){
+        store.data[this.dataKey] = this.db.storage.get()[this.dataKey];
+      }
     }
   }
 
@@ -190,9 +194,7 @@ Store.db = (function(store) {
   store.storage = function(set, get){
     this.storage.set = set;
     this.storage.get = get;
-    if(get){
-      this.data = this.storage.get();
-    }
+
   }
 
   if(typeof sessionStorage != "undefined"){
@@ -208,10 +210,6 @@ Store.db = (function(store) {
       if(store.sessionStorage.getItem("observable-store")){
         return JSON.parse(store.sessionStorage.getItem("observable-store"));
       }
-    }
-
-    if(store.storage.get()){
-      store.data = store.storage.get();
     }
 
     try{
