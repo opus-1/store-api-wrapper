@@ -409,7 +409,7 @@ Store.db = function (store) {
   store.data = {};
   store.dataWas = {};
   store.debug = false;
-
+  store.remembers = [];
   store.setRemembers = function () {
     store.remembers.forEach(function (rememberer) {
       store.data[rememberer] = (store.storage.get() || {})[rememberer];
