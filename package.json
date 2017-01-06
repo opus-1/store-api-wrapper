@@ -1,6 +1,6 @@
 {
   "name": "store-api-wrapper",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "A store lib for making data transfer from the client to your api easily and logically",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

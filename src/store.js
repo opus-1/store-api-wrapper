@@ -634,7 +634,7 @@ Store.db = (function(store) {
   store.remembers = [];
 
   store.trigger = function(name){
-    this.observable.trigger()
+    this.observable.trigger(name)
   }
   store.get = function(name){
     var data = this.data[name]
