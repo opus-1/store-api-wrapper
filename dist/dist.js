@@ -260,6 +260,9 @@ var Store = function Store(dataKey) {
     store: function store(subDataKey) {
       return Store(this.dataKey + "." + subDataKey);
     },
+    on: function on(action, callback) {
+      return this.db.on(this.dataKey + "." + action, callback);
+    },
     trigger: function trigger(action) {
       return this.db.observable.trigger(this.dataKey + "." + action);
     },
