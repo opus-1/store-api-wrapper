@@ -27,13 +27,20 @@ describe('Store', function() {
 
   describe('#on', function() {
     it('on should trigger when trigger is called', function() {
+      Store("users").on("test", function(){
+        assert.equal(true, true);
+      })
+      Store("users").trigger("test")
+    });
+
+    it('onUpdate should trigger when trigger is called', function() {
       Store("users").onUpdate(function(){
         assert.equal(true, true);
       })
       Store.db.observable.trigger("set")
     });
 
-    it('on should trigger when * is the listener and regardless of what the trigger is', function() {
+    it('onChange should trigger when * is the listener and regardless of what the trigger is', function() {
       Store("users").onChange(function(){
         assert.equal(true, true);
       })

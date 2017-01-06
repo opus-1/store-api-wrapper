@@ -43,6 +43,9 @@ var Store = function(dataKey){
     store: function(subDataKey){
       return Store(this.dataKey + "." + subDataKey)
     },
+    on: function(action, callback){
+      return this.db.on(this.dataKey + "." + action, callback);
+    },
     trigger: function(action){
       return this.db.observable.trigger(this.dataKey + "." + action);
     },
