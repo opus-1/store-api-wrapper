@@ -772,9 +772,6 @@ Store.db = (function(store) {
       }else{
         detachable.trigger = observable.name;
       }
-      if(typeof callback == "function"){
-        callback = callback.bind(store)
-      }
       detachable.callback = callback;
       store.observable.on(detachable.trigger, callback);
       detachable.detach = function(){
