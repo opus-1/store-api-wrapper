@@ -96,22 +96,14 @@ Store.ReactMixin = StoresMixin = {
       }
 
       c.detachables.push(store.onChange(callback))
-    });
-
-    if (typeof this._componentDidMount === 'function') {
-      this._componentDidMount();
-    }
+    })
   },
 
   componentWillUnmount: function(){
     this.detachables = this.detachables || []
     this.detachables.forEach(function(store){
       store.detach()
-    });
-
-    if (typeof this._componentWillUnmount === 'function') {
-      this._componentWillUnmount();
-    }
+    })
   },
 
   followChange: function(change){
